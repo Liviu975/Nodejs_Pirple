@@ -7,7 +7,9 @@
 
 // Import the modules/dependencies
 const http = require("http");
+const { StringDecoder } = require("string_decoder");
 const url = require("url");
+const StringDecoder = require("string_decoder").StringDecoder;
 
 // PORT variable
 const PORT = 3000;
@@ -31,6 +33,9 @@ function handleServer(req, res) {
 
     // Get the headers as an object
     let headers = req.headers;
+
+    // Get the payload if there is any
+    let decoder = new StringDecoder('utf-8');
 
     // Request data that we want
     const requestObj = {

@@ -1,0 +1,2 @@
+In nodejs the data comes in chunks via streams, regarding all at once.
+to parse that data we have to concatenate all the chunks into a buffer and stringify it in order for us to read it.
