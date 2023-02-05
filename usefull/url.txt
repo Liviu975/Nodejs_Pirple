@@ -1,0 +1,15 @@
+The url package contains a function named parse which takes the url from the request and retuns an object with some useful parameters like:
+    - protocol;
+    - slashes;
+    - auth;
+    - host;
+    - port;
+    - hostname;
+    - hash;
+    - search;
+    - query;
+    - pathname;
+    - path;
+    - href;
+
+    This modules hels us saving time proccessing the url ourselves.
