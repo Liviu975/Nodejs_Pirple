@@ -6,6 +6,7 @@
 
 
 // Import the modules/dependencies
+const { stat } = require("fs");
 const http = require("http");
 const url = require("url");
 const StringDecoder = require("string_decoder").StringDecoder;
@@ -47,15 +48,29 @@ function handleServer(req, res) {
 
         // Request data that we want
         const requestObj = {
-            pathname: trimmedPath,
+            trimmedPath,
             method,
             headers,
             queryStringObject,
-            buffer
+            payload: buffer
         }
 
-        // Send the reponse
-        return res.end(`${JSON.stringify(requestObj, ",", 2)}`);
+        // Choose the handler
+        let chosenHandler = typeof(Router[trimmedPath]) !== 'undefined' ? Router[trimmedPath] : handler.noFound;
+    
+        // Route the request to the handler specified in the router
+        chosenHandler(requestObj, (statusCode, payload) => {
+            // Use the default status code called back by the handler or 200 
+            statusCode = typeof(statusCode) === "number" ? statusCode : 200;
+
+            payload = typeof(payload) === "object" ? payload : {};
+
+            let payloadString = JSON.stringify(payload);
+
+            console.log(`Returning this response: ${statusCode}, ${payloadString}`);
+            res.writeHead(statusCode);
+            return res.end(payloadString);
+        })
     })
 }
 
@@ -66,3 +81,22 @@ server.listen(PORT, (err) => {
     } else console.log(`The app is running on port ${PORT}`);
 })
 
+
+// Define handlers
+const handler = {};
+
+handler.sample = function(data, callback) {
+    // Callback a http status code and a payload object
+    callback(406, {'name': 'Sample handler'});
+}
+
+
+// Not found handler
+handler.noFound = function (data, callback) {
+    callback(404);
+}
+
+// Define a request router
+const Router = {
+    'sample': handler.sample
+}
