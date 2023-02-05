@@ -8,6 +8,7 @@
 // Import the modules/dependencies
 const http = require("http");
 const url = require("url");
+const StringDecoder = require("string_decoder").StringDecoder;
 
 // PORT variable
 const PORT = 3000;
@@ -32,16 +33,30 @@ function handleServer(req, res) {
     // Get the headers as an object
     let headers = req.headers;
 
-    // Request data that we want
-    const requestObj = {
-        pathname: trimmedPath,
-        method,
-        headers,
-        queryStringObject,
-    }
+    // Get the payload if there is any
+    let decoder = new StringDecoder('utf-8');
 
-    // Send the reponse
-    return res.end(`${JSON.stringify(requestObj, ",", 2)}`);
+    let buffer = '';
+
+    req.on('data', (data) => {
+        buffer += decoder.write(data);
+    });
+
+    req.on('end', () => {
+        buffer += decoder.end();
+
+        // Request data that we want
+        const requestObj = {
+            pathname: trimmedPath,
+            method,
+            headers,
+            queryStringObject,
+            buffer
+        }
+
+        // Send the reponse
+        return res.end(`${JSON.stringify(requestObj, ",", 2)}`);
+    })
 }
 
 // Listen to the port
